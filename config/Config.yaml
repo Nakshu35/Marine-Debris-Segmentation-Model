@@ -1,0 +1,70 @@
+experiment_name: "ssl_adapted_run1"
+
+seed: 42
+deterministic_cudnn: true
+
+data:
+  ssl_root: "D:\\MINOR PROJECT\\Model\\DATA\\marine_ssl\\IndianPatches"
+  marida_root: "D:\\MINOR PROJECT\\Model\\DATA\\MARIDA"
+
+  ssl_crop_size: 224
+  seg_crop_size: 256
+  num_workers: 4
+
+model:
+  img_size: 256
+  patch_size: 16
+  embed_dim: 384
+  depth: 12
+  num_heads: 6
+  mlp_ratio: 4.0
+  drop_rate: 0.0
+  attn_drop_rate: 0.0
+
+  pyramid_channels: [64, 128, 256, 512]
+  deep_supervision: false
+
+  pretrained_checkpoint: ""
+  pretrained_checkpoint_band_count: 11
+
+ssl:
+  mask_ratio: 0.75
+  decoder_embed_dim: 192
+  decoder_depth: 4
+  decoder_num_heads: 6
+  norm_pix_loss: true
+
+  batch_size: 32
+  epochs: 100
+  lr: 1.5e-4
+  min_lr: 1.0e-6
+  weight_decay: 0.05
+  grad_clip: 1.0
+  amp: true
+  num_workers: 4
+  early_stopping_patience: 15
+  val_fraction: 0.05
+
+segmentation:
+  batch_size: 16
+  val_batch_size: 16
+  epochs: 150
+  lr: 3.0e-4
+  encoder_lr_mult: 0.1
+  min_lr: 1.0e-6
+  weight_decay: 1.0e-4
+  grad_clip: 1.0
+  amp: true
+  num_workers: 4
+  early_stopping_patience: 20
+
+loss:
+  mode: "ce_dice"
+  ce_weight: 1.0
+  dice_weight: 1.0
+  focal_gamma: 2.0
+  class_weight_method: "inverse_sqrt"
+
+output:
+  runs_dir: "/kaggle/working/runs"
+  num_visualization_samples: 12
