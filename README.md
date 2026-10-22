@@ -3,8 +3,6 @@
 A PyTorch pipeline for pixel-level segmentation of marine debris and co-occurring sea-surface features in 11-band Sentinel-2 imagery. It combines a ViT-S/16 encoder, optional masked-autoencoder (MAE) self-supervised pre-training on Indian coastal-line imagery, a simple feature pyramid neck, and a U-Net++ decoder.
 
 > **Scope of the reported results.** All numbers below come from supervised training and testing on the **MARIDA dataset only**. The Indian coastal-line SSL stage is part of the pipeline and is used for my separate marine debris detection project; it is not a source of labelled data here.
->
-> **Disclosure.** The pipeline code was written with the help of an AI assistant. I reviewed it, ran it, and am responsible for the results reported here.
 
 ---
 
