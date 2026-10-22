@@ -1,0 +1,35 @@
+# Run outputs (checkpoints, logs, predictions, visualizations)
+runs/
+**/runs/
+sanity_visualizations/
+
+# Personal config
+config2.yaml
+**/Config2.yaml
+
+# Model weights
+*.pth
+*.pt
+*.ckpt
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+build/
+dist/
+
+# Notebooks / caches
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+
+# Logs and OS/editor files
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
