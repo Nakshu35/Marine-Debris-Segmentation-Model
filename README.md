@@ -109,33 +109,50 @@ Notes:
 
 ## Comparison with published work
 
-Reference numbers are taken from the cited papers as reported by them. **They are not strictly like-for-like**: papers differ in class grouping (11 vs 15 classes, whether Marine Debris is merged with suspected plastics), averaging (macro vs micro), and exact splits. Treat this as context, not a leaderboard.
+All published numbers are copied from the cited papers and are **not strictly like-for-like**: papers differ in class grouping, in how mIoU/F1 are averaged, and in training setup. Treat the tables as context, not a leaderboard. The MARIDA benchmark uses 11 classes (the original 15 with Wakes, Cloud Shadows, Waves and Mixed Water merged into a water super-class) [1], the same grouping this pipeline uses.
 
-### Marine Debris class (the hard, rare class)
+### MARIDA test set: overall (11 classes)
+
+| Model | Source | PA* | mIoU | Macro F1 |
+|---|---|---|---|---|
+| U-Net (original MARIDA baseline) | [1], values as tabulated in [14] | 0.69 | 0.57 | 0.69 |
+| OceanMAE + frozen encoder | [14] | 0.72 | 0.58 | 0.69 |
+| OceanMAE + full fine-tune | [14] | 0.77 | 0.61 | 0.72 |
+| SatMAE + full fine-tune | [14] | 0.54 | 0.67† | 0.64 |
+| FGMAE + full fine-tune | [14] | 0.55 | 0.68† | 0.66 |
+| SSL4EO + full fine-tune | [14] | 0.51 | 0.65† | 0.64 |
+| **This work (ViT-S/16 + SimpleFPN + U-Net++)** | MARIDA test | **0.96‡** | **0.67** | **0.76** |
+
+\* PA in [1] and [14] is reported as a per-class metric. **‡ My pixel accuracy is global (all labelled pixels), so the PA column is not comparable.** Water and clouds dominate the pixel count, so global accuracy is high even for weak models.
+† In these rows mIoU is higher than macro F1, which is unusual if both are averaged the same way, so these rows may use a different averaging. Compare them with caution.
+
+### MARIDA test set: Marine Debris class only
 
 | Model | Source | MD IoU | MD F1 |
 |---|---|---|---|
-| U-Net (MARIDA baseline) | Kikaki et al. 2022 [1], as tabulated in [11] | 0.33 | 0.49 |
-| Random Forest (spectra + indices + GLCM texture) | Kikaki et al. 2022 [1], as tabulated in [11] | 0.67 | 0.83 |
-| **This work (ViT-S + SimpleFPN + U-Net++)** | MARIDA test | **0.34** | **0.51** |
+| U-Net (MARIDA baseline) | as tabulated in [11] | 0.33 | 0.49 |
+| Random Forest (spectra + indices + texture) | as tabulated in [11] | 0.67 | 0.83 |
+| **This work** | MARIDA test | **0.34** | **0.51** |
 
-### Overall (all classes)
+These per-class values come from a third-party paper's table [11], not from the original MARIDA table, so verify them against Table 4 of [1] before relying on them.
 
-| Model | Source | mIoU | Macro F1 | Pixel acc. |
+### Other-dataset reference points (MADOS, not MARIDA)
+
+These models were evaluated on the MADOS dataset (15 classes, includes oil spills) [9]. They show how SSL and newer architectures perform on a related benchmark but are **not comparable** to the MARIDA numbers above.
+
+| Model | Source | PA | mIoU | Macro F1 |
 |---|---|---|---|---|
-| U-Net (MARIDA baseline) | [11] (reporting [1]) | 0.66 | 0.74 | n/a |
-| RF SS+SI+GLCM | cited in [10] (reporting [1]) | 0.69 | 0.79 | n/a |
-| ResAttUNet | [8], cited in [10] | 0.67 | n/a | n/a |
-| ResUNext (UNet + ResNeXt50) | Rao 2025 [12] (own protocol) | 0.75 | 0.84 | 0.85 |
-| **This work** | MARIDA test | **0.67** | **0.76** | **0.96** |
+| Random Forest | [9], via [14] | 67.1 | 43.9 | 56.6 |
+| U-Net | [9], via [14] | 82.9 | 51.0 | 63.8 |
+| MariNeXt | [9], via [14] | 89.1 | 64.3 | 76.0 |
+| OceanMAE + frozen encoder (patch 16) | [14] | 87.4 | 70.8 | 81.3 |
 
 ### Reading the comparison honestly
 
-- **Overall mIoU/F1 are competitive with the deep-learning baselines** (about 0.67 mIoU, in line with the MARIDA U-Net and ResAttUNet figures) but below the best Random Forest baseline and the ResUNext result.
-- **Marine Debris IoU/F1 (0.34 / 0.51) are close to the original MARIDA U-Net (0.33 / 0.49) and well below the Random Forest baseline (0.67 / 0.83).** Published work also notes the RF baselines outperform the U-Net on this dataset [1][10]. So this model does not yet beat the strongest classical baseline on the target class.
-- **Precision (0.47) is lower than recall (0.56)** for debris: the model over-predicts debris on look-alike classes, a failure mode also reported for the MARIDA baselines, which often misclassify water, foam, ships and clouds as debris [11].
-- **Pixel accuracy (0.96) is not a useful headline number** here because water and clouds dominate the pixel count.
-- A larger or newer benchmark is MADOS with MariNeXt [9], but it is a different dataset and is not comparable to these numbers.
+- **Overall, this model is above the original MARIDA U-Net**: mIoU 0.67 vs 0.57 and macro F1 0.76 vs 0.69. It also scores above the OceanMAE variants (best: mIoU 0.61, macro F1 0.72) on those two metrics, though OceanMAE is pre-trained on a different corpus and fine-tuned under its own protocol [14].
+- **mIoU is on par with the other SSL models, and I do not claim an improvement over them.** Their mIoU values of 0.65-0.68 are in the same range, and their averaging may differ (see †).
+- **Marine Debris is still the weak point.** Debris IoU 0.34 / F1 0.51 is close to the MARIDA U-Net's debris scores and well below the Random Forest baseline, which the MARIDA paper also found to be the strongest overall model [1]. Precision (0.47) is lower than recall (0.56), so the model over-predicts debris on look-alike classes.
+- **No state-of-the-art claim.** Results come from a single run and a single split, and the comparison protocols are not identical.
 
 ---
 
@@ -208,3 +225,4 @@ utils/                        seeding, logging, visualisation, system info
 11. **High-precision Density Mapping of Marine Debris and Floating Plastics via Satellite Imagery.** arXiv:2210.05468. https://arxiv.org/abs/2210.05468
 12. Rao (2025). **Hybrid Deep Learning Approach for Marine Debris Detection in Satellite Imagery Using UNet with ResNext50 Backbone.** https://www.researchgate.net/publication/392991161
 13. Cong Y. et al. **SatMAE: Pre-training Transformers for Temporal and Multi-Spectral Satellite Imagery.** NeurIPS 2022. https://arxiv.org/abs/2207.08051
+14. Stamer V.-J., Agrafiotis P., Rasti B., Demir B. **OceanMAE: A Foundation Model for Ocean Remote Sensing.** arXiv:2604.08171, 2026. https://arxiv.org/abs/2604.08171
