@@ -206,7 +206,6 @@ utils/                        seeding, logging, visualisation, system info
 - The marine debris class remains the weak point (IoU 0.34).
 - Single reported run; no multi-seed variance estimate yet.
 - Comparisons to the literature are indicative only (different class sets and protocols).
-- Code was AI-assisted; independent review and reproduction are encouraged.
 
 ---
 
